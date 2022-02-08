@@ -7,11 +7,9 @@ import "./CreateToken.sol";
 
 contract SwapVendor {
     mapping(address => bool) private tokens;
-    address constant ETH_ADDRESS = address(0x9B668c471973132BCa0c55971ebbc9f22CcF715F);
     address owner;
 
     constructor() {
-        tokens[ETH_ADDRESS] = true;
         owner = msg.sender;
     }
 
