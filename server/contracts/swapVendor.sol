@@ -6,7 +6,7 @@ import "./CreateToken.sol";
 
 
 contract SwapVendor {
-    mapping(address => bool) private tokens;
+    mapping(address => bool) public tokens;
     address owner;
 
     constructor() {
@@ -60,34 +60,34 @@ contract SwapVendor {
         address boughtToken) public payable {
 
         bool checkSailToken = tokens[sailedToken];
-        bool checkBuyToken = tokens[boughtToken];
+        bool checkBuyTokenByEth = tokens[boughtToken];
 
-        uint currentPaymentWei = MyToken(sailedToken).calculateTotalSum(sailedAmount);
-
-        uint buyAmount = MyToken(boughtToken).calculateTotalAmountsOfCoin(currentPaymentWei);
+        uint buyAmount = sailedAmount;
 
         MyToken sToken = MyToken(sailedToken);
         MyToken bToken = MyToken(boughtToken);
 
         require(checkSailToken, "Token, which you want sail, doesn't exist!");
-        require(checkBuyToken, "Token, which you want buy, doesn't exist!");
+        require(checkBuyTokenByEth, "Token, which you want buy, doesn't exist!");
 
         uint256 getBalanceOfContractForSailedToken = sToken.balanceOf(address(this));
-        uint256 getBalanceOfContractForBuyToken = bToken.balanceOf(address(this));
+        uint256 getBalanceOfContractForBuyTokenByEth = bToken.balanceOf(address(this));
 
         require(getBalanceOfContractForSailedToken > 0, "Contract hasn't got coins of sailed token!");
-        require(getBalanceOfContractForBuyToken > 0, "Contract hasn't got coins of buy token!");
+        require(getBalanceOfContractForBuyTokenByEth > 0, "Contract hasn't got coins of buy token!");
 
         uint allowanceSailedToken = ERC20(sToken).allowance(owner, msg.sender);
-        require(allowanceSailedToken >= currentPaymentWei, "Check allowance sailed token!");
+        require(allowanceSailedToken >= sailedAmount, "Check allowance sailed token!");
 
         (bool sentSailedToken) = sToken.transferFrom(msg.sender, address(this), sailedAmount);
         require(sentSailedToken, "Failed to transfer sailed tokens from user to contract!");
 
-        uint allowanceBuyToken = ERC20(bToken).allowance(owner, address(this));
-        require(allowanceBuyToken >= buyAmount, "Check allowance buy token!");
+        uint allowanceBuyTokenByEth = ERC20(bToken).allowance(owner, address(this));
+        require(allowanceBuyTokenByEth >= buyAmount, "Check allowance buy token!");
 
-        (bool sentBuyToken) = bToken.transferFrom(address(this), msg.sender, buyAmount);
-        require(sentBuyToken, "Failed to transfer buy tokens from contract to user!");
+        require(bToken.balanceOf(address(this)) > 0, "Contract balance less than 0!" );
+
+        (bool sentBuyTokenByEth) = bToken.transferFrom(address(this), msg.sender, buyAmount);
+        require(sentBuyTokenByEth, "Failed to transfer buy tokens from contract to user!");
     }
 }
