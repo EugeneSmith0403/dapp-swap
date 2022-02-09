@@ -1,3 +1,4 @@
 .idea/
 _server/node_modules
 client/node_modules
+server/__pycache__

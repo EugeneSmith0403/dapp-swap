@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Hero
+from .models.heroModel import Hero
 
 
 
