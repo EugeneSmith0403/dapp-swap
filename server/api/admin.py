@@ -5,4 +5,4 @@ from .models.heroModel import Hero
 
 # Register your models here.
 
-admin.site.register(Hero)
+# admin.site.register(Hero)
