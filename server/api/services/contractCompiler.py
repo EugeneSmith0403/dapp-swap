@@ -11,8 +11,14 @@ def compile_contract(contract_name: str) -> None:
     if contract_name:
         compile_file_name = '{contract_name}.sol'.format(contract_name=contract_name)
         built_file_name = '{contract_name}.txt'.format(contract_name=contract_name)
-        contract_file_path = make_contract_file_url(path=settings.CONTRACTS_URL, contract_name=compile_file_name)
-        contract_file_build = make_contract_file_url(path=settings.BUILT_CONTRACTS_DIR, contract_name=built_file_name)
+        contract_file_path = make_contract_file_url(
+            path=settings.CONTRACTS_URL,
+            contract_name=compile_file_name
+        )
+        contract_file_build = make_contract_file_url(
+            path=settings.BUILT_CONTRACTS_DIR,
+            contract_name=built_file_name
+        )
         contract: dict = compile_files(
             contract_file_path,
             base_path=settings.OPEN_ZEPPELIN_URL
