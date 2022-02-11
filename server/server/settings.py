@@ -120,4 +120,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CONTRACTS_URL = '{base}/api/contracts/'.format(base=BASE_DIR)
+
+BUILT_CONTRACTS_DIR = '{base}/build/'.format(base=BASE_DIR)
+
+OPEN_ZEPPELIN_URL = '/Users/evgentjkuznecov/node_modules'
+
+
+
 # db user: Eka, password: ecgt[[1234
