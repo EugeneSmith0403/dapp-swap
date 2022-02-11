@@ -61,4 +61,4 @@ def deploy_contract(contract_name: str, contract_class_name, provider):
         '_amount': 1000000000000000000,
         'partialPrice': 1
     }
-    print(contract.constructor(**props).transact({'from': w3.eth.account[0]}))
+    return contract.constructor(**props).transact({'from': w3.eth.account[0]})
