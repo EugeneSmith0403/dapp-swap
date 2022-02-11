@@ -33,18 +33,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='RequestToken',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=70)),
-                ('liquidityAmount', models.IntegerField()),
-                ('symbol', models.CharField(max_length=10)),
-                ('partial', models.IntegerField(default=1)),
-                ('status', models.IntegerField(default=api.enum.statusRequest.StatusRequest['pending'])),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='requests', to='api.client')),
-            ],
-        ),
-        migrations.CreateModel(
             name='User',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

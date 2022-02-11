@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser, models.Model):
-    wallet = models.CharField(max_length=60)
+    wallet = models.CharField(max_length=100)
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'

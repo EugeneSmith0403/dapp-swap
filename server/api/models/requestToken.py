@@ -5,9 +5,8 @@ from ..enum.statusRequest import StatusRequest
 
 class RequestToken(models.Model):
     name = models.CharField(max_length=70)
-    liquidityAmount = models.IntegerField()
-    symbol = models.CharField(max_length=10)
-    partial = models.IntegerField(default=1)
+    project_link = models.CharField(max_length=70)
+    contract_address = models.CharField(max_length=100)
     client = models.ForeignKey(Client, related_name='requests', on_delete=models.CASCADE)
     status = models.IntegerField(default=StatusRequest.pending)
 

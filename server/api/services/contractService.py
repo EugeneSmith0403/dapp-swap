@@ -1,7 +1,6 @@
 import json
 
 from solcx import compile_files
-from pickle import dump, load
 from django.conf import settings
 from web3 import Web3
 
