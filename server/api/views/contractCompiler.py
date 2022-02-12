@@ -1,3 +1,4 @@
+import web3
 from django.db import InternalError
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,17 +7,21 @@ from web3 import Web3
 
 from ..models.deployedContract import DeployedContract
 
-from ..services.contractService import compile_contract, deploy_contract
+from ..services.contractService import compile_contract, deploy_contract, get_contract_data
 
 provider = Web3.HTTPProvider(
     settings.ETHEREUM_NETWORK
 )
 
+w3 = web3.Web3(provider)
 
 class ContractCompiler(APIView):
     def get(self, request):
-
-        return Response({'result': 'Ok'})
+        address = '0x9d3cB05047280bD8De204917D0AE7E79091f70C1'
+        abi, _ = get_contract_data('createToken', 'MyToken')
+        contract_instance = w3.eth.contract(address=address, abi=abi)
+        result = contract_instance.functions.getPrice().call()
+        return Response({'result': result, 'status': 'Ok'})
 
     # Create smart contract
     # @param contract_name,
@@ -41,12 +46,11 @@ class ContractCompiler(APIView):
                     'provider': provider,
                     'owner_wallet_address': owner_wallet_address
                 }
-                address_contract, abi = deploy_contract(**deployProperty)
+                address_contract = deploy_contract(**deployProperty)
                 try:
                     DeployedContract(
                         contract_name=contract_name,
                         address_contract=address_contract,
-                        abi=abi,
                         address_wallet=owner_wallet_address,
                     ).save()
                 except InternalError:

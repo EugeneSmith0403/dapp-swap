@@ -10,6 +10,34 @@ def make_contract_file_url(path: str, contract_name: str) -> str:
     return r'{path}{contract_name}'.format(path=path, contract_name=contract_name)
 
 
+def make_parent_property_for_contract(contract_file_path: str, contract_class_name: str) -> str:
+    return '{path}:{class_name}'.format(path=contract_file_path, class_name=contract_class_name)
+
+
+def get_contract_data(contract_name: str, contract_class_name: str) -> tuple:
+    if contract_name:
+        built_file_name = '{contract_name}.json'.format(contract_name=contract_name)
+        compile_file_name = '{contract_name}.sol'.format(contract_name=contract_name)
+        contract_file_build = make_contract_file_url(
+            path=settings.BUILT_CONTRACTS_DIR,
+            contract_name=built_file_name
+        )
+        contract_file_path = make_contract_file_url(
+            path=settings.CONTRACTS_URL,
+            contract_name=compile_file_name
+        )
+
+        jsonProp = make_parent_property_for_contract(contract_file_path, contract_class_name)
+
+        with open(contract_file_build, 'r') as file:
+            str = file.read()
+            compiled_sol = json.loads(str)
+            contr = compiled_sol[jsonProp]
+            abi = contr['abi']
+            bin = contr['bin']
+        return abi, bin
+
+
 def compile_contract(contract_name: str) -> None:
     if contract_name:
         compile_file_name = '{contract_name}.sol'.format(contract_name=contract_name)
@@ -42,35 +70,21 @@ def deploy_contract(
         provider,
         owner_wallet_address: str
 ) -> tuple:
-    built_file_name = '{contract_name}.json'.format(contract_name=contract_name)
-    compile_file_name = '{contract_name}.sol'.format(contract_name=contract_name)
-    contract_file_path = make_contract_file_url(
-        path=settings.CONTRACTS_URL,
-        contract_name=compile_file_name
-    )
-    jsonProp = '{path}:{class_name}'.format(path=contract_file_path, class_name=contract_class_name)
-    contract_file_build = make_contract_file_url(
-        path=settings.BUILT_CONTRACTS_DIR,
-        contract_name=built_file_name,
-    )
+    abi, bin = get_contract_data(contract_name, contract_class_name)
+    if abi and bin:
+        w3 = Web3(provider)
+        acct = Account.create(owner_wallet_address)
+        w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+        w3.eth.default_account = owner_wallet_address
 
-    w3 = Web3(provider)
-    acct = Account.create(owner_wallet_address)
-    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
-    w3.eth.default_account = owner_wallet_address
-
-    with open(contract_file_build, 'r') as file:
-        str = file.read()
-        compiled_sol = json.loads(str)
-        contr = compiled_sol[jsonProp]
-        abi = contr['abi']
-        bin = contr['bin']
         contract = w3.eth.contract(abi=abi, bytecode=bin)
 
-    transaction = {
-        'gasPrice': w3.eth.gas_price,
-        'nonce': w3.eth.getTransactionCount(owner_wallet_address),
-    }
+        transaction = {
+            'gasPrice': w3.eth.gas_price,
+            'nonce': w3.eth.getTransactionCount(owner_wallet_address),
+        }
 
-    contract_data = contract.constructor(**contract_props).buildTransaction(transaction)
-    return w3.eth.send_transaction(contract_data).hex(), json.dumps(abi)
+        contract_data = contract.constructor(**contract_props).buildTransaction(transaction)
+        return w3.eth.send_transaction(contract_data).hex(), json.dumps(abi)
+    else:
+        raise Exception('some problem with abi and bin for contract!')
