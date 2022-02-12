@@ -5,7 +5,7 @@ from rest_framework import routers
 from rest_framework.decorators import api_view
 
 from .views.heroSet import HeroSet
-from .views.web3Test import Web3Test
+from .views.web3 import Web3Test
 
 router = routers.DefaultRouter()
 router.register(r'heroes', HeroSet)
