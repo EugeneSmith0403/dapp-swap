@@ -1,8 +1,10 @@
 import json
-
+from eth_account import Account
 from solcx import compile_files
 from django.conf import settings
 from web3 import Web3
+from web3.middleware import construct_sign_and_send_raw_middleware
+from django.apps import apps
 
 
 def make_contract_file_url(path: str, contract_name: str) -> str:
@@ -21,19 +23,25 @@ def compile_contract(contract_name: str) -> None:
             path=settings.BUILT_CONTRACTS_DIR,
             contract_name=built_file_name
         )
-        contract: dict = compile_files(
-            contract_file_path,
-            base_path=settings.OPEN_ZEPPELIN_URL,
-            output_values=['abi', 'bin']
-        )
-        contractJson = json.dumps(contract)
-        with open(contract_file_build, 'w') as file:
-            print(contractJson, file=file)
+        with open(contract_file_build, 'r+') as file:
+            if not file.read():
+                contract: dict = compile_files(
+                    contract_file_path,
+                    base_path=settings.OPEN_ZEPPELIN_URL,
+                    output_values=['abi', 'bin']
+                )
+                contractJson = json.dumps(contract)
+                print(contractJson, file=file)
     else:
         raise Exception('contract_name arguments not empty')
 
 
-def deploy_contract(contract_name: str, contract_class_name, provider):
+def deploy_contract(
+        contract_name: str,
+        contract_class_name: str,
+        contract_props: dict,
+        provider
+) -> str:
     built_file_name = '{contract_name}.json'.format(contract_name=contract_name)
     compile_file_name = '{contract_name}.sol'.format(contract_name=contract_name)
     contract_file_path = make_contract_file_url(
@@ -46,18 +54,23 @@ def deploy_contract(contract_name: str, contract_class_name, provider):
         contract_name=built_file_name,
     )
 
+    w3 = Web3(provider)
+    acct = Account.create(settings.CONTRACT_OWNER_WALLET_ADDRESS)
+    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+    w3.eth.default_account = settings.CONTRACT_OWNER_WALLET_ADDRESS
+
     with open(contract_file_build, 'r') as file:
         str = file.read()
         compiled_sol = json.loads(str)
         contr = compiled_sol[jsonProp]
         abi = contr['abi']
         bin = contr['bin']
-    w3 = Web3(provider())
-    contract = w3.eth.contract(abi=abi, bytecode=bin)
-    props = {
-        'name': "TS",
-        'symbol': 'TS',
-        '_amount': 1000000000000000000,
-        'partialPrice': 1
+        contract = w3.eth.contract(abi=abi, bytecode=bin)
+
+    transaction = {
+        'gasPrice': w3.eth.gas_price,
+        'nonce': w3.eth.getTransactionCount(settings.CONTRACT_OWNER_WALLET_ADDRESS),
     }
-    return contract.constructor(**props).transact({'from': w3.eth.account[0]})
+
+    contract_data = contract.constructor(**contract_props).buildTransaction(transaction)
+    return w3.eth.send_transaction(contract_data).hex()

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -126,6 +127,10 @@ BUILT_CONTRACTS_DIR = '{base}/build/'.format(base=BASE_DIR)
 
 OPEN_ZEPPELIN_URL = '/Users/evgentjkuznecov/node_modules'
 
+ETHEREUM_NETWORK = 'HTTP://127.0.0.1:7545'
 
+CONTRACT_OWNER_WALLET_ADDRESS = '0xd7d4A6b60e456931Ca0677E40048c78F4189Beb9'
+
+PRIVATE_KEY = '9bc5f04de6351ca59bcfb5aef115be93321df4ba0c22f39c382487b296567b99'
 
 # db user: Eka, password: ecgt[[1234
