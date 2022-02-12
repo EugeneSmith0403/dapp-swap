@@ -1,4 +1,6 @@
 import json
+import os
+
 from eth_account import Account
 from solcx import compile_files
 from django.conf import settings
@@ -50,7 +52,11 @@ def compile_contract(contract_name: str) -> None:
             path=settings.BUILT_CONTRACTS_DIR,
             contract_name=built_file_name
         )
-        with open(contract_file_build, 'r+') as file:
+
+        if os.path.exists(contract_file_build):
+            os.remove(contract_file_build)
+
+        with open(contract_file_build, 'a+') as file:
             if not file.read():
                 contract: dict = compile_files(
                     contract_file_path,
@@ -63,13 +69,13 @@ def compile_contract(contract_name: str) -> None:
         raise Exception('contract_name arguments not empty')
 
 
-def deploy_contract(
+def _deploy_contract(
         contract_name: str,
         contract_class_name: str,
         contract_props: dict,
         provider,
         owner_wallet_address: str
-) -> tuple:
+) -> str:
     abi, bin = get_contract_data(contract_name, contract_class_name)
     if abi and bin:
         w3 = Web3(provider)
@@ -85,6 +91,25 @@ def deploy_contract(
         }
 
         contract_data = contract.constructor(**contract_props).buildTransaction(transaction)
-        return w3.eth.send_transaction(contract_data).hex(), json.dumps(abi)
+        return w3.eth.send_transaction(contract_data).hex()
     else:
         raise Exception('some problem with abi and bin for contract!')
+
+
+def deploy_contract(
+        contract_name: str,
+        contract_class_name: str,
+        contract_props: dict,
+        provider,
+        owner_wallet_address: str
+) -> str:
+    try:
+        return _deploy_contract(
+            contract_name,
+            contract_class_name,
+            contract_props,
+            provider,
+            owner_wallet_address
+        )
+    except Exception:
+        raise Exception('deploy contract error!')
