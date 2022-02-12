@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.conf import settings
 from web3 import Web3
+
 from ..models.deployedContract import DeployedContract
 
 from ..services.contractService import compile_contract, deploy_contract
@@ -12,26 +13,10 @@ provider = Web3.HTTPProvider(
 )
 
 
-class Web3Test(APIView):
+class ContractCompiler(APIView):
     def get(self, request):
 
-        compile_contract('createToken')
-
-        props = {
-            'name': "TS",
-            'symbol': 'TS',
-            '_amount': 1000000000000000000,
-            'partialPrice': 1
-        }
-
-        deployProperty = {
-            'contract_name': 'createToken',
-            'contract_class_name': 'MyToken',
-            'contract_props': props,
-            'provider': provider
-        }
-        hash_contract = deploy_contract(**deployProperty)
-        return Response({'result': 'Ok', 'hash_contract': hash_contract})
+        return Response({'result': 'Ok'})
 
     # Create smart contract
     # @param contract_name,
@@ -44,6 +29,7 @@ class Web3Test(APIView):
         item = DeployedContract.objects.all().filter(contract_name=contract_name)
         if not item:
             try:
+                compile_contract(contract_name)
                 contract_class_name = request.data['contract_class_name']
                 props = request.data['props']
                 owner_wallet_address = request.data['owner_wallet_address']

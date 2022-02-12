@@ -1,11 +1,9 @@
 # myapi/urls.py
 from django.urls import include, path
-from requests import Response
 from rest_framework import routers
-from rest_framework.decorators import api_view
 
 from .views.heroSet import HeroSet
-from .views.web3 import Web3Test
+from .views.contractCompiler import ContractCompiler
 
 router = routers.DefaultRouter()
 router.register(r'heroes', HeroSet)
@@ -16,5 +14,5 @@ router.register(r'heroes', HeroSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('web3/', Web3Test.as_view())
+    path('web3/', ContractCompiler.as_view())
 ]
