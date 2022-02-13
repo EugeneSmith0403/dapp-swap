@@ -16,46 +16,50 @@ w3 = Web3(provider)
 class AddedToken(APIView):
     def post(self, request):
         props = SwapAddTokenProps(**request.data)
+        w3 = Web3Model(props)
+        w3.set_contract(props)
         contract = Web3Model(props).get_contract()
         contract.functions.addToken(
             props.contract_address,
             props.liquidity
         ).transact()
-
         return Response({'result': 'ok', 'contract_address': props.owner_wallet_address})
 
 
 class BuyToken(APIView):
     def post(self, request):
         props = BuyTokenProps(**request.data)
-        contract = Web3Model(props).get_contract()
+        w3 = Web3Model(props)
+        w3.set_contract(props)
+        contract = w3.get_contract()
         contract.functions.buyToken(
             props.contract_address
         ).transact({'from': props.owner_wallet_address})
-
         return Response({'result': 'ok'})
 
 
 class SellToken(APIView):
     def post(self, request):
         props = SellTokenProps(**request.data)
-        contract = Web3Model(props).get_contract()
+        w3 = Web3Model(props)
+        w3.set_contract(props)
+        contract = w3.get_contract()
         contract.functions.sellToken(
             props.contract_address,
             props.amount
         ).transact({'from': props.owner_wallet_address})
-
         return Response({'result': 'ok'})
 
 
 class Swap(APIView):
     def post(self, request):
         props = SwapProps(**request.data)
-        contract = Web3Model(props).get_contract()
+        w3 = Web3Model(props)
+        w3.set_contract(props)
+        contract = w3.get_contract()
         contract.functions.swap(
             props.sail_token_address,
             props.sail_token_amount,
             props.buy_token_address
         ).transact({'from': props.owner_wallet_address})
-
         return Response({'result': 'ok'})

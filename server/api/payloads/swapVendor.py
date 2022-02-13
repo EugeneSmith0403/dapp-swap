@@ -1,10 +1,10 @@
 class BaseSwapProps:
     owner_wallet_address: str
+    contract_name: str
+    contract_class_name: str
 
 
 class SwapConstructorProps(BaseSwapProps):
-    contract_name: str
-    contract_class_name: str
     contract_props: dict
 
     def __init__(self, **props):

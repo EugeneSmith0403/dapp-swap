@@ -6,7 +6,7 @@ from django.conf import settings
 from web3.contract import Contract
 from web3.middleware import construct_sign_and_send_raw_middleware
 
-from ..payloads.swapVendor import SwapConstructorProps, BaseSwapProps
+from ..payloads.swapVendor import SwapConstructorProps, BaseSwapProps, SwapAddTokenProps
 from ..services.contractService import get_contract_data
 
 
@@ -24,7 +24,7 @@ class Web3Model:
         self.w3.middleware_onion.add(construct_sign_and_send_raw_middleware(self.__account))
         self.w3.eth.default_account = props.owner_wallet_address
 
-    def set_contract(self, props: SwapConstructorProps):
+    def set_contract(self, props):
         abi, _ = get_contract_data(props.contract_name, props.contract_class_name)
         self.__contract_instance = self.w3.eth.contract(address=props.contract_address, abi=abi)
 
