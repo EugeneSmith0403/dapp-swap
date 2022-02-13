@@ -60,7 +60,9 @@ def compile_contract(contract_name: str) -> None:
             if not file.read():
                 contract: dict = compile_files(
                     contract_file_path,
-                    base_path=settings.OPEN_ZEPPELIN_URL,
+                    import_remappings={
+                        '@baseOpenzeppelin': settings.OPEN_ZEPPELIN_URL,
+                    },
                     output_values=['abi', 'bin']
                 )
                 contractJson = json.dumps(contract)
