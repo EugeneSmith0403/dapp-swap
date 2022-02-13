@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,6 +51,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'api.middleware.check_accesses'
 ]
+
+CHECK_URL_FOR_SUPERUSER_ACCESS = {
+    'deployContract': True
+}
 
 ROOT_URLCONF = 'server.urls'
 

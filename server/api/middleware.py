@@ -1,16 +1,12 @@
 import json
-
 from .models.user import User
-
-client_middleware_check_url = {
-    'deployContract': True
-}
+from django.conf import settings
 
 
 def check_accesses(get_response):
     def middleware(request):
         path = request.path.replace('/', '')
-        if path in client_middleware_check_url and request.method == 'POST':
+        if path in settings.CHECK_URL_FOR_SUPERUSER_ACCESS and request.method == 'POST':
             data = json.loads(request.body)
             if 'owner_wallet_address' in data:
                 user = User.objects.filter(wallet=str(data['owner_wallet_address']))
