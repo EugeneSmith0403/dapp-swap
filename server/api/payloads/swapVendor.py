@@ -19,15 +19,21 @@ class SwapAddTokenProps(BaseSwapProps):
     liquidity: str
 
     def __init__(self, **props):
+        self.owner_wallet_address = props.get('owner_wallet_address')
         self.contract_address = props.get('contract_address')
         self.liquidity = props.get('liquidity')
+        self.contract_name = props.get('contract_name')
+        self.contract_class_name = props.get('contract_class_name')
 
 
 class BuyTokenProps(BaseSwapProps):
     contract_address: str
 
     def __init__(self, **props):
+        self.owner_wallet_address = props.get('owner_wallet_address')
         self.contract_address = props.get('contract_address')
+        self.contract_name = props.get('contract_name')
+        self.contract_class_name = props.get('contract_class_name')
 
 
 class SellTokenProps(BaseSwapProps):
@@ -35,8 +41,11 @@ class SellTokenProps(BaseSwapProps):
     amount: str
 
     def __init__(self, **props):
+        self.owner_wallet_address = props.get('owner_wallet_address')
         self.contract_address = props.get('contract_address')
         self.amount = props.get('amount')
+        self.contract_name = props.get('contract_name')
+        self.contract_class_name = props.get('contract_class_name')
 
 
 class SwapProps(BaseSwapProps):
@@ -45,6 +54,9 @@ class SwapProps(BaseSwapProps):
     sail_token_amount: int
 
     def __init__(self, **props):
+        self.owner_wallet_address = props.get('owner_wallet_address')
         self.contract_address = props.get('buy_token_address')
         self.sail_token_address = props.get('sail_token_address')
         self.sail_token_amount = props.get('sail_token_address')
+        self.contract_name = props.get('contract_name')
+        self.contract_class_name = props.get('contract_class_name')

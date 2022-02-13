@@ -3,8 +3,8 @@ from web3 import Web3
 from django.conf import settings
 from rest_framework.response import Response
 
-from server.api.models.web3 import SwapConstructorProps, Web3Model
-from server.api.payloads.swapVendor import SwapAddTokenProps, BuyTokenProps, SellTokenProps, SwapProps
+from ..models.web3 import SwapConstructorProps, Web3Model
+from ..payloads.swapVendor import SwapAddTokenProps, BuyTokenProps, SellTokenProps, SwapProps
 
 provider = Web3.HTTPProvider(
     settings.ETHEREUM_NETWORK
@@ -18,12 +18,15 @@ class AddedToken(APIView):
         props = SwapAddTokenProps(**request.data)
         w3 = Web3Model(props)
         w3.set_contract(props)
-        contract = Web3Model(props).get_contract()
-        contract.functions.addToken(
-            props.contract_address,
-            props.liquidity
-        ).transact()
-        return Response({'result': 'ok', 'contract_address': props.owner_wallet_address})
+        contract = w3.get_contract()
+        try:
+            contract.functions.addToken(
+                props.contract_address,
+                props.liquidity
+            ).call()
+            return Response({'result': 'ok', 'contract_address': props.owner_wallet_address})
+        except Exception:
+            raise Exception('Error with addToken method!')
 
 
 class BuyToken(APIView):
