@@ -16,23 +16,22 @@ w3 = web3.Web3(provider)
 
 
 class ContractCompiler(APIView):
-    # def get(self, request):
-    #     address = '0x9d3cB05047280bD8De204917D0AE7E79091f70C1'
-    #     abi, _ = get_contract_data('createToken', 'MyToken')
-    #     contract_instance = w3.eth.contract(address=address, abi=abi)
-    #     result = contract_instance.functions.getPrice().call()
-    #
-    #     tx_hash = contract_instance.functions \
-    #         .transfer('0x64b8308c1EFe06c5Bff1DA71f7325fb58E76e21D', 100) \
-    #         .transact({'from': settings.CONTRACT_OWNER_WALLET_ADDRESS})
-    #
-    #     balance = contract_instance.functions.balanceOf('0x64b8308c1EFe06c5Bff1DA71f7325fb58E76e21D').call()
-    #     balance_owner = contract_instance.functions.balanceOf(settings.CONTRACT_OWNER_WALLET_ADDRESS).call()
-    #
-    #     return Response({'result': {'balance': balance, 'balance_owner': balance_owner}, 'status': 'Ok'})
-    #     return Response({'result': "ok"})
+    def get(self, request):
+        address = '0x9d3cB05047280bD8De204917D0AE7E79091f70C1'
+        abi, _ = get_contract_data('createToken', 'MyToken')
+        contract_instance = w3.eth.contract(address=address, abi=abi)
+        result = contract_instance.functions.getPrice().call()
 
-    #
+        tx_hash = contract_instance.functions \
+            .transfer('0x64b8308c1EFe06c5Bff1DA71f7325fb58E76e21D', 100) \
+            .transact({'from': settings.CONTRACT_OWNER_WALLET_ADDRESS})
+
+        balance = contract_instance.functions.balanceOf('0x64b8308c1EFe06c5Bff1DA71f7325fb58E76e21D').call()
+        balance_owner = contract_instance.functions.balanceOf(settings.CONTRACT_OWNER_WALLET_ADDRESS).call()
+
+        return Response({'result': {'balance': balance, 'balance_owner': balance_owner}, 'status': 'Ok'})
+
+
     # @example params: {
     #   "contract_name": "",
     #   "contract_class_name": "",

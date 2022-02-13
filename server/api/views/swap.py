@@ -3,6 +3,9 @@ from web3 import Web3
 from django.conf import settings
 from rest_framework.response import Response
 
+from server.api.models.web3 import SwapConstructorProps, Web3Model
+from server.api.payloads.swapVendor import SwapAddTokenProps, BuyTokenProps, SellTokenProps, SwapProps
+
 provider = Web3.HTTPProvider(
     settings.ETHEREUM_NETWORK
 )
@@ -10,20 +13,49 @@ provider = Web3.HTTPProvider(
 w3 = Web3(provider)
 
 
-class addToken(APIView):
+class AddedToken(APIView):
     def post(self, request):
-        return Response({ 'result': 'ok' })
+        props = SwapAddTokenProps(**request.data)
+        contract = Web3Model(props).get_contract()
+        contract.functions.addToken(
+            props.contract_address,
+            props.liquidity
+        ).transact()
+
+        return Response({'result': 'ok', 'contract_address': props.owner_wallet_address})
+
 
 class BuyToken(APIView):
     def post(self, request):
-        return Response({ 'result': 'ok' })
+        props = BuyTokenProps(**request.data)
+        contract = Web3Model(props).get_contract()
+        contract.functions.buyToken(
+            props.contract_address
+        ).transact({'from': props.owner_wallet_address})
+
+        return Response({'result': 'ok'})
 
 
-class SailToken(APIView):
+class SellToken(APIView):
     def post(self, request):
-        return Response({ 'result': 'ok' })
+        props = SellTokenProps(**request.data)
+        contract = Web3Model(props).get_contract()
+        contract.functions.sellToken(
+            props.contract_address,
+            props.amount
+        ).transact({'from': props.owner_wallet_address})
+
+        return Response({'result': 'ok'})
 
 
 class Swap(APIView):
     def post(self, request):
-        return Response({ 'result': 'ok' })
+        props = SwapProps(**request.data)
+        contract = Web3Model(props).get_contract()
+        contract.functions.swap(
+            props.sail_token_address,
+            props.sail_token_amount,
+            props.buy_token_address
+        ).transact({'from': props.owner_wallet_address})
+
+        return Response({'result': 'ok'})
