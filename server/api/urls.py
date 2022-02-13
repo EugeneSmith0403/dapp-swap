@@ -14,5 +14,5 @@ router.register(r'heroes', HeroSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('web3/', ContractCompiler.as_view())
+    path('deployContract/', ContractCompiler.as_view())
 ]
