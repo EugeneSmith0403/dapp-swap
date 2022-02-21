@@ -1,6 +1,9 @@
 aiohttp==3.8.1
 aiosignal==1.2.0
 api==0.0.7
+pkgconfig==1.5.5
+py-solc-x==2.9.0
+web3==3.8.1
 appconfig==0.1
 appdirs==1.4.4
 argcomplete==2.0.0

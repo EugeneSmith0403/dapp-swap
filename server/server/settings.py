@@ -131,13 +131,13 @@ CONTRACTS_URL = '{base}/api/contracts/'.format(base=BASE_DIR)
 
 BUILT_CONTRACTS_DIR = '{base}/build/'.format(base=BASE_DIR)
 
-OPEN_ZEPPELIN_URL = '/Users/evgentjkuznecov/node_modules'
+OPEN_ZEPPELIN_URL = '{root}/node_modules/'.format(root=Path(__file__).resolve().parent.parent.parent)
 
 ETHEREUM_NETWORK = 'HTTP://127.0.0.1:7545'
 
-CONTRACT_OWNER_WALLET_ADDRESS = '0xd7d4A6b60e456931Ca0677E40048c78F4189Beb9'
+CONTRACT_OWNER_WALLET_ADDRESS = '0xf932C4f37598AA348E8715424f678c66C98bfE64'
 
-PRIVATE_KEY = '9bc5f04de6351ca59bcfb5aef115be93321df4ba0c22f39c382487b296567b99'
+PRIVATE_KEY = '27413dc20c270b088ba7a688ab7dcbd74edb2335433133b965019c66d54894ba'
 
 
 # db user: Eka, password: ecgt[[1234

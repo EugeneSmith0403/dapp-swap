@@ -20,7 +20,7 @@ contract SwapVendor {
         require(msg.sender == owner, "Only owner can add token!");
         tokens[_address] = true;
 
-        uint allowance = ERC20(_address).allowance(owner, address(this));
+        uint allowance = ERC20(_address).allowance(owner, msg.sender);
         require(allowance >= liquidity, "Check allowance!");
 
         ERC20(_address).transferFrom(owner, address(this), liquidity);

@@ -93,7 +93,8 @@ def _deploy_contract(
         }
 
         contract_data = contract.constructor(**contract_props).buildTransaction(transaction)
-        return w3.eth.send_transaction(contract_data).hex()
+        tx_hash = w3.eth.send_transaction(contract_data)
+        return w3.eth.get_transaction_receipt(tx_hash)['contractAddress']
     else:
         raise Exception('some problem with abi and bin for contract!')
 
