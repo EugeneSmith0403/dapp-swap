@@ -5,7 +5,7 @@ import "@baseOpenzeppelin/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyToken is Context, ERC20 {
 
-    address creator;
+    address public creator;
     uint price = 1 * 10 ** 18;
     uint constant ETH_PRICE = 1 * 10 ** 18;
 

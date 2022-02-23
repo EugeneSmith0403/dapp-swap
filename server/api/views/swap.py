@@ -6,15 +6,23 @@ from django.conf import settings
 from rest_framework.response import Response
 
 from ..models.deployedContract import DeployedContract
-from ..models.web3 import SwapConstructorProps, Web3Model, ContractProps
+from ..models.web3 import Web3Model, ContractProps
 from ..payloads.swapVendor import SwapAddTokenProps, BuyTokenProps, SellTokenProps, SwapProps, BaseSwapProps
-from ..services.contractService import get_contract_data
 
-# provider = Web3.HTTPProvider(
-#     settings.ETHEREUM_NETWORK
-# )
-#
-# w3 = Web3(provider)
+
+def convert_swap_vendor_data(props):
+    queryName = 'swapVendor_{wallet}'.format(wallet=settings.CONTRACT_OWNER_WALLET_ADDRESS)
+
+    item = DeployedContract.objects.filter(contract_name=queryName).all()
+
+    if not item:
+        raise Exception('Contract doesn\'t exist!')
+
+    return {
+        'contract_name': 'swapVendor',
+        'contract_class_name': 'SwapVendor',
+        'contract_address': item[0].address_contract
+    }
 
 
 class AddedToken(APIView):
@@ -22,19 +30,7 @@ class AddedToken(APIView):
         props = SwapAddTokenProps(**request.data)
         w3 = Web3Model(props)
 
-        queryName = '{contract_name}_{wallet}'.format(contract_name=props.contract_name,
-                                                      wallet=props.owner_wallet_address)
-
-        item = DeployedContract.objects.filter(contract_name=queryName).all()
-
-        if not item:
-            raise Exception('Contract doesn\'t exist!')
-
-        swap_contract_props = {
-            'contract_name': props.contract_name,
-            'contract_class_name': props.contract_class_name,
-            'contract_address': item[0].address_contract
-        }
+        swap_contract_props = convert_swap_vendor_data(props)
 
         swap_props = ContractProps(swap_contract_props)
 
@@ -57,9 +53,9 @@ class AddedToken(APIView):
             'from': settings.CONTRACT_OWNER_WALLET_ADDRESS,
         }
 
-        token_contract.functions.approve(swap_props.contract_address, liquidity)\
+        token_contract.functions.approve(swap_props.contract_address, liquidity) \
             .transact(transactProps)
-        
+
         swap_vendor_contract.functions.addToken(props.contract_address, liquidity).transact(transactProps)
 
         balance_token_owner = token_contract.functions.balanceOf(settings.CONTRACT_OWNER_WALLET_ADDRESS).call()
@@ -76,29 +72,53 @@ class BuyToken(APIView):
     def post(self, request):
         props = BuyTokenProps(**request.data)
         w3 = Web3Model(props)
+
+        # add swap contract
+        swap_contract_dict = convert_swap_vendor_data(props)
+        swap_contract_props = ContractProps(swap_contract_dict)
+        w3.set_contract(swap_contract_props)
+
+        # add token contract
         w3.set_contract(ContractProps(request.data))
+        swap_contract = w3.get_contract('swapVendor')
+        token_contract = w3.get_contract('createToken')
 
-        contract = w3.get_contract('swapVendor')
+        transactProps = {'from': props.owner_wallet_address, 'value': props.amount}
 
-        tk = contract.functions.tokens(props.contract_address).call()
-
-        contract.functions.buyToken(
+        swap_contract.functions.buyToken(
             props.contract_address
-        ).transact({'from': props.owner_wallet_address, 'value': 100})
+        ).transact(transactProps)
 
-        return Response({'result': 'ok'})
+        owner_balance_bought_token = token_contract.functions.balanceOf(props.owner_wallet_address).call()
+
+        return Response({'result': 'ok', 'owner_balance_bought_token': owner_balance_bought_token})
 
 
 class SellToken(APIView):
     def post(self, request):
         props = SellTokenProps(**request.data)
         w3 = Web3Model(props)
-        w3.set_contract(props)
-        contract = w3.get_contract()
-        contract.functions.sellToken(
+        w3.set_contract(ContractProps(request.data))
+
+        # add swap contract
+        swap_contract_dict = convert_swap_vendor_data(props)
+        swap_contract_props = ContractProps(swap_contract_dict)
+        w3.set_contract(swap_contract_props)
+
+        swap_contract = w3.get_contract('swapVendor')
+        token_contract = w3.get_contract('createToken')
+        transactProps = {
+            'from': settings.CONTRACT_OWNER_WALLET_ADDRESS,
+        }
+
+        token_contract.functions.approve(props.owner_wallet_address, int(props.amount)) \
+            .transact(transactProps)
+
+        swap_contract.functions.sellToken(
             props.contract_address,
-            props.amount
+            int(props.amount)
         ).transact({'from': props.owner_wallet_address})
+
         return Response({'result': 'ok'})
 
 
