@@ -28,12 +28,14 @@ class SwapAddTokenProps(BaseSwapProps):
 
 class BuyTokenProps(BaseSwapProps):
     contract_address: str
+    amount: int
 
     def __init__(self, **props):
         self.owner_wallet_address = props.get('owner_wallet_address')
         self.contract_address = props.get('contract_address')
         self.contract_name = props.get('contract_name')
         self.contract_class_name = props.get('contract_class_name')
+        self.amount = props.get('amount')
 
 
 class SellTokenProps(BaseSwapProps):

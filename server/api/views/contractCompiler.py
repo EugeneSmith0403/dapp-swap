@@ -17,7 +17,7 @@ w3 = web3.Web3(provider)
 
 class ContractCompiler(APIView):
     def get(self, request):
-        address = '0x5ECc7200A4f12217A8e7B26799d69563d610FEaE'
+        address = '0x0e036114d9B9c5bE76026Ed6F8d855A6D7bAA97f'
         try:
             abi, _ = get_contract_data('createToken', 'MyToken')
 
@@ -27,11 +27,13 @@ class ContractCompiler(APIView):
         contract_instance = w3.eth.contract(address=address, abi=abi)
         result = contract_instance.functions.getPrice().call()
 
+        contract_instance.functions.approve(settings.CONTRACT_OWNER_WALLET_ADDRESS, 100).transact({'from': settings.CONTRACT_OWNER_WALLET_ADDRESS})
+
         tx_hash = contract_instance.functions \
-            .transfer('0x4CD7b1cB371c0Ba761e3e0dC8887bE3F4a99C35A', 100) \
+            .transferFrom(settings.CONTRACT_OWNER_WALLET_ADDRESS, '0xdDe6B26070De0D9AB752f2Bd04896f27EFb3250a', 100) \
             .transact({'from': settings.CONTRACT_OWNER_WALLET_ADDRESS})
 
-        balance = contract_instance.functions.balanceOf('0x4CD7b1cB371c0Ba761e3e0dC8887bE3F4a99C35A').call()
+        balance = contract_instance.functions.balanceOf('0xdDe6B26070De0D9AB752f2Bd04896f27EFb3250a').call()
         balance_owner = contract_instance.functions.balanceOf(settings.CONTRACT_OWNER_WALLET_ADDRESS).call()
 
         return Response(

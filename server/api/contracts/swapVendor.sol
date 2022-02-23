@@ -18,11 +18,14 @@ contract SwapVendor {
     function addToken(address _address, uint256 liquidity) public {
         require(liquidity > 0, "Assign amount for liquidity!");
         require(msg.sender == owner, "Only owner can add token!");
+        require(!tokens[_address], "Token has already added!");
         tokens[_address] = true;
+        ERC20(_address).transferFrom(owner, address(this), liquidity);
+    }
 
-        uint allowance = ERC20(_address).allowance(owner, msg.sender);
-        require(allowance >= liquidity, "Check allowance!");
-
+    function transferTokenToSwapContract(address _address, uint256 liquidity) {
+        require(liquidity > 0, "Assign amount for liquidity!");
+        require(msg.sender == owner, "Only owner can add token!");
         ERC20(_address).transferFrom(owner, address(this), liquidity);
     }
 
