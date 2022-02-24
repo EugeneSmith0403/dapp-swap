@@ -83,7 +83,7 @@ class BuyToken(APIView):
         swap_contract = w3.get_contract('swapVendor')
         token_contract = w3.get_contract('createToken')
 
-        transactProps = {'from': props.owner_wallet_address, 'value': props.amount}
+        transactProps = {'from': props.owner_wallet_address, 'value': int(props.amount)}
 
         swap_contract.functions.buyToken(
             props.contract_address
@@ -108,10 +108,12 @@ class SellToken(APIView):
         swap_contract = w3.get_contract('swapVendor')
         token_contract = w3.get_contract('createToken')
         transactProps = {
-            'from': settings.CONTRACT_OWNER_WALLET_ADDRESS,
+            'from': props.owner_wallet_address,
         }
 
-        token_contract.functions.approve(props.owner_wallet_address, int(props.amount)) \
+        balance = token_contract.functions.balanceOf(props.owner_wallet_address).call()
+
+        token_contract.functions.approve(props.owner_wallet_address, balance) \
             .transact(transactProps)
 
         swap_contract.functions.sellToken(

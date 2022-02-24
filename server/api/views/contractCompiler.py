@@ -17,7 +17,15 @@ w3 = web3.Web3(provider)
 
 class ContractCompiler(APIView):
     def get(self, request):
-        address = '0x0e036114d9B9c5bE76026Ed6F8d855A6D7bAA97f'
+
+        queryName = 'createToken_{wallet}'.format(wallet=settings.CONTRACT_OWNER_WALLET_ADDRESS)
+
+        item = DeployedContract.objects.filter(contract_name=queryName).all()
+
+        if not item:
+            raise Exception('Contract doesn\'t exist!')
+
+        address = item[0].address_contract
         try:
             abi, _ = get_contract_data('createToken', 'MyToken')
 
@@ -27,7 +35,8 @@ class ContractCompiler(APIView):
         contract_instance = w3.eth.contract(address=address, abi=abi)
         result = contract_instance.functions.getPrice().call()
 
-        contract_instance.functions.approve(settings.CONTRACT_OWNER_WALLET_ADDRESS, 100).transact({'from': settings.CONTRACT_OWNER_WALLET_ADDRESS})
+        contract_instance.functions.approve(settings.CONTRACT_OWNER_WALLET_ADDRESS, 100).transact(
+            {'from': settings.CONTRACT_OWNER_WALLET_ADDRESS})
 
         tx_hash = contract_instance.functions \
             .transferFrom(settings.CONTRACT_OWNER_WALLET_ADDRESS, '0xdDe6B26070De0D9AB752f2Bd04896f27EFb3250a', 100) \

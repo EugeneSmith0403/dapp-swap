@@ -18,6 +18,6 @@ urlpatterns = [
     path('deployContract/', ContractCompiler.as_view()),
     path('swapVendor/addToken', AddedToken.as_view()),
     path('swapVendor/buyToken', BuyToken.as_view()),
-    path('swapVendor/sailToken', SellToken.as_view()),
+    path('swapVendor/sellToken', SellToken.as_view()),
     path('swapVendor/swap', Swap.as_view()),
 ]

@@ -23,7 +23,7 @@ contract SwapVendor {
         ERC20(_address).transferFrom(owner, address(this), liquidity);
     }
 
-    function transferTokenToSwapContract(address _address, uint256 liquidity) {
+    function transferTokenToSwapContract(address _address, uint256 liquidity) public {
         require(liquidity > 0, "Assign amount for liquidity!");
         require(msg.sender == owner, "Only owner can add token!");
         ERC20(_address).transferFrom(owner, address(this), liquidity);
@@ -43,7 +43,7 @@ contract SwapVendor {
         uint256 curBalance = ERC20(token).balanceOf(address(this));
         require(curBalance > 0, "Current token balance 0!");
 
-        ERC20(token).transfer(address(this), amountToBuy);
+        ERC20(token).transfer(address(msg.sender), amountToBuy);
     }
 
     function sellToken(address token, uint amount) public payable {
