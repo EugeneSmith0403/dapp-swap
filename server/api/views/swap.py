@@ -1,7 +1,4 @@
-import web3.eth
 from rest_framework.views import APIView
-from web3 import Web3
-import web3
 from django.conf import settings
 from rest_framework.response import Response
 
@@ -128,11 +125,38 @@ class Swap(APIView):
     def post(self, request):
         props = SwapProps(**request.data)
         w3 = Web3Model(props)
-        w3.set_contract(props)
-        contract = w3.get_contract()
-        contract.functions.swap(
-            props.sail_token_address,
-            props.sail_token_amount,
+        swap_contract_props = convert_swap_vendor_data(props)
+        swap_props = ContractProps(swap_contract_props)
+        w3.set_contract(swap_props)
+        transactProps = {
+            'from': props.owner_wallet_address,
+        }
+
+        sell_token_dict = {
+            "contract_name": "createToken",
+            "contract_class_name": "MyToken",
+            "contract_address": props.sell_token_address
+        }
+        w3.set_contract(ContractProps(sell_token_dict), 'sell')
+
+        buy_token_dict = {
+            "contract_name": "createToken",
+            "contract_class_name": "MyToken",
+            "contract_address": props.buy_token_address
+        }
+        w3.set_contract(ContractProps(buy_token_dict), 'buy')
+
+        swap_contract = w3.get_contract('swapVendor')
+        buy_token = w3.get_contract('buy_createToken')
+        sell_token = w3.get_contract('sell_createToken')
+
+        sell_token.functions.approve(props.owner_wallet_address, int(props.sell_token_amount)).transact(transactProps)
+        buy_token.functions.approve(swap_contract.address, int(props.sell_token_amount)).transact(transactProps)
+
+        swap_contract.functions.swap(
+            props.sell_token_address,
+            int(props.sell_token_amount),
             props.buy_token_address
         ).transact({'from': props.owner_wallet_address})
+
         return Response({'result': 'ok'})

@@ -36,9 +36,11 @@ class Web3Model:
         # self.w3.middleware_onion.add(construct_sign_and_send_raw_middleware(self.__account))
         # self.w3.eth.default_account = props.owner_wallet_address
 
-    def set_contract(self, props: ContractProps):
+    def set_contract(self, props: ContractProps, prefix: str = ''):
         abi, _ = get_contract_data(props.contract_name, props.contract_class_name)
-        self.__contract_instance[props.contract_name] = self.w3.eth.contract(address=props.contract_address, abi=abi)
+        pr = prefix + '_' if prefix else ''
+        prop = '{prefix}{name}'.format(prefix=prefix + '_', name=props.contract_name)
+        self.__contract_instance[prop] = self.w3.eth.contract(address=props.contract_address, abi=abi)
 
     def get_contract(self, name: str):
         return self.__contract_instance[name]

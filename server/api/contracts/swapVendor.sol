@@ -58,15 +58,18 @@ contract SwapVendor {
 
     }
 
-    function swap(address sailedToken, uint256 sailedAmount,
-        address boughtToken) public payable {
+    function swap(
+        address sellToken,
+        uint256 sellAmount,
+        address boughtToken
+    ) public payable {
 
-        bool checkSailToken = tokens[sailedToken];
+        bool checkSailToken = tokens[sellToken];
         bool checkBuyTokenByEth = tokens[boughtToken];
 
-        uint buyAmount = sailedAmount;
+        uint buyAmount = sellAmount;
 
-        MyToken sToken = MyToken(sailedToken);
+        MyToken sToken = MyToken(sellToken);
         MyToken bToken = MyToken(boughtToken);
 
         require(checkSailToken, "Token, which you want sail, doesn't exist!");
@@ -78,11 +81,15 @@ contract SwapVendor {
         require(getBalanceOfContractForSailedToken > 0, "Contract hasn't got coins of sailed token!");
         require(getBalanceOfContractForBuyTokenByEth > 0, "Contract hasn't got coins of buy token!");
 
-        uint allowanceSailedToken = ERC20(sToken).allowance(owner, msg.sender);
-        require(allowanceSailedToken >= sailedAmount, "Check allowance sailed token!");
+        ERC20(sToken).approve(msg.sender, buyAmount);
 
-        (bool sentSailedToken) = sToken.transferFrom(msg.sender, address(this), sailedAmount);
+        uint allowanceSailedToken = ERC20(sToken).allowance(owner, msg.sender);
+        require(allowanceSailedToken >= buyAmount, "Check allowance sailed token!");
+
+        (bool sentSailedToken) = sToken.transferFrom(msg.sender, address(this), buyAmount);
         require(sentSailedToken, "Failed to transfer sailed tokens from user to contract!");
+
+        ERC20(bToken).approve(address(this), buyAmount);
 
         uint allowanceBuyTokenByEth = ERC20(bToken).allowance(owner, address(this));
         require(allowanceBuyTokenByEth >= buyAmount, "Check allowance buy token!");

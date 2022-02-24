@@ -52,13 +52,11 @@ class SellTokenProps(BaseSwapProps):
 
 class SwapProps(BaseSwapProps):
     buy_token_address: str
-    sail_token_address: str
-    sail_token_amount: int
+    sell_token_address: str
+    sell_token_amount: int
 
     def __init__(self, **props):
         self.owner_wallet_address = props.get('owner_wallet_address')
-        self.contract_address = props.get('buy_token_address')
-        self.sail_token_address = props.get('sail_token_address')
-        self.sail_token_amount = props.get('sail_token_address')
-        self.contract_name = props.get('contract_name')
-        self.contract_class_name = props.get('contract_class_name')
+        self.buy_token_address = props.get('buy_token_address')
+        self.sell_token_address = props.get('sell_token_address')
+        self.sell_token_amount = props.get('sell_token_amount')

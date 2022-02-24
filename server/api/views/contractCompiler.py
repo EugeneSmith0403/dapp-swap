@@ -66,7 +66,7 @@ class ContractCompiler(APIView):
         owner_wallet_address = request.data['owner_wallet_address']
         contract = '{contract_name}_{wallet}'.format(contract_name=contract_name, wallet=owner_wallet_address)
         item = DeployedContract.objects.all().filter(contract_name=contract)
-        if not item:
+        if not item or request.data['contract_name'] == 'createToken':
             compile_contract(contract_name)
             contract_class_name = request.data['contract_class_name']
             props = request.data['props']
